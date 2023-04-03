@@ -5,11 +5,11 @@ from config import settings
 from model import FinancialData, FinancialDataModel, prepare_database
 
 LOAD_DAYS: int = 14
+LOAD_SYMBOLS: list[str] = ['IBM', 'AAPL']
 
 
 def load_symbols() -> None:
-    symbols = ['IBM', 'AAPL']
-    for symbol in symbols:
+    for symbol in LOAD_SYMBOLS:
         load_symbol(symbol)
 
 
@@ -20,12 +20,14 @@ def load_symbol(symbol: str) -> None:
 
     symbol_dict = requests.get(request_url).json()
     symbol_meta = symbol_dict['Meta Data']
+
+    # Make sure that we actually get expected symbol
     assert symbol_meta['2. Symbol'] == symbol
 
-    financial_data: list[dict] = []
-    symbol_data: dict = symbol_dict['Time Series (Daily)']
-    for date_str, data_dict in symbol_data.items():
-        financial_data.append(
+    insert_data: list[dict] = []
+    raw_data: dict = symbol_dict['Time Series (Daily)']
+    for date_str, data_dict in raw_data.items():
+        insert_data.append(
             FinancialDataModel(
                 symbol=symbol,
                 date=date_str,
@@ -35,13 +37,17 @@ def load_symbol(symbol: str) -> None:
             ).dict()
         )
 
-        if len(financial_data) == LOAD_DAYS:
+        # Get only required number of entries
+        if len(insert_data) == LOAD_DAYS:
             break
 
-    assert len(financial_data) == LOAD_DAYS
+    # Another check to ensure that server has required number of entries
+    assert len(insert_data) == LOAD_DAYS
 
-    if financial_data:
-        FinancialData.insert_many(financial_data).on_conflict(
+    if insert_data:
+        # Even though it's highly unlikely, but we upsert the data in case for some reason AlphaVantage change will
+        # change past data
+        FinancialData.insert_many(insert_data).on_conflict(
             conflict_target=[
                 FinancialData.symbol, FinancialData.date
             ],

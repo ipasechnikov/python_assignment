@@ -14,6 +14,13 @@ def load_symbols() -> None:
 
 
 def load_symbol(symbol: str) -> None:
+    """
+    Gets the latest available financial data from AlphaVantage API.
+    Please mind, this function blocks the thread
+    :param symbol: Symbol to request from the server
+    :return:
+    """
+
     request_url = (f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED'
                    f'&symbol={symbol}'
                    f'&apikey={settings.ALPHA_VANTAGE_API_KEY}')

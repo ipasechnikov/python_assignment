@@ -1,21 +1,13 @@
 import datetime
 from decimal import Decimal
 
-from peewee import (
-    CompositeKey,
-    DateField,
-    DecimalField,
-    IntegerField,
-    Model,
-    ModelSelect,
-    TextField,
-)
+from peewee import CompositeKey, DateField, DecimalField, IntegerField, Model, TextField
 from playhouse.db_url import connect
 from pydantic import BaseModel as PydanticModel
 
 from config import settings
 
-db = connect(settings.PEEWEE_POSTGRES_URL)
+db = connect(settings.PEEWEE_DATABASE_URL)
 
 
 class BaseModel(Model):
@@ -44,6 +36,10 @@ class FinancialDataModel(PydanticModel):
 
 
 def prepare_database() -> None:
+    """
+    Creates missing tables in the database
+    :return:
+    """
     db.create_tables([FinancialData])
 
 

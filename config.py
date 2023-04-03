@@ -2,7 +2,7 @@ from pydantic import BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
-    PEEWEE_POSTGRES_URL: PostgresDsn
+    PEEWEE_DATABASE_URL: PostgresDsn
     ALPHA_VANTAGE_API_KEY: str
 
     class Config:

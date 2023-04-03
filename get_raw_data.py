@@ -2,7 +2,7 @@ import requests
 from peewee import EXCLUDED
 
 from config import settings
-from model import FinancialData, FinancialDataModel
+from model import FinancialData, FinancialDataModel, prepare_database
 
 LOAD_DAYS: int = 14
 
@@ -54,4 +54,5 @@ def load_symbol(symbol: str) -> None:
 
 
 if __name__ == "__main__":
+    prepare_database()
     load_symbols()

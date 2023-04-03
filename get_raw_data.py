@@ -52,8 +52,8 @@ def load_symbol(symbol: str) -> None:
     assert len(insert_data) == LOAD_DAYS
 
     if insert_data:
-        # Even though it's highly unlikely, but we upsert the data in case for some reason AlphaVantage change will
-        # change past data
+        # Even though it's highly unlikely, but we upsert the data in case for
+        # some reason AlphaVantage change past data
         FinancialData.insert_many(insert_data).on_conflict(
             conflict_target=[
                 FinancialData.symbol, FinancialData.date

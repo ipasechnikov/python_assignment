@@ -1,7 +1,15 @@
 import datetime
 from decimal import Decimal
 
-from peewee import CompositeKey, DateField, DecimalField, IntegerField, Model, TextField
+from peewee import (
+    CompositeKey,
+    DateField,
+    DecimalField,
+    IntegerField,
+    Model,
+    ModelSelect,
+    TextField,
+)
 from playhouse.db_url import connect
 from pydantic import BaseModel as PydanticModel
 

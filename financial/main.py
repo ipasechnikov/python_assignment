@@ -4,14 +4,13 @@
 # There is better solution to this problem by rearranging models, but I try to
 # keep directory structure as close to the task description as possible
 import sys
-from collections import defaultdict
-
 sys.path.append('../python_assignment')
 # isort: on
 
 import datetime
 import math
 import statistics
+from collections import defaultdict
 from typing import Annotated
 
 import uvicorn

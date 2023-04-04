@@ -68,7 +68,6 @@ class FinancialDataModel(PydanticModel):
 def prepare_database() -> None:
     """
     Creates missing tables in the database
-    :return:
     """
     db.create_tables([FinancialData])
 

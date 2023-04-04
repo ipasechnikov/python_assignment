@@ -19,12 +19,15 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, NonNegativeInt, PositiveInt
 
 from config import settings
-from model import FinancialData, FinancialDataModel
+from model import FinancialData, FinancialDataModel, objects
 
 DEFAULT_LIMIT = 5
 DEFAULT_PAGE = 1
 
 app = FastAPI()
+
+# Ensure that there are no sync calls to the database
+objects.database.allow_sync = False
 
 
 class FinancialDataPagination(BaseModel):
@@ -85,10 +88,12 @@ async def financial_data(
             query = query.where(*conditions)
 
         # Get a single page of financial data from the database
-        data_page = [FinancialDataModel.from_orm(fd) for fd in query.paginate(page, limit)]
+        data_page = await objects.execute(
+            query.paginate(page, limit)
+        )
 
         # Build pagination structure
-        count = query.count()
+        count = await objects.count(query)
         pages = math.ceil(count / limit) or 1
         pagination = FinancialDataPagination(
             count=count,
@@ -99,7 +104,7 @@ async def financial_data(
 
         # Build response structure
         return FinancialDataResponse(
-            data=data_page,
+            data=[FinancialDataModel.from_orm(fd) for fd in data_page],
             pagination=pagination
         )
     except Exception as e:

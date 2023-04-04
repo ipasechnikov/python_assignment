@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 from decimal import Decimal
 from typing import Any
@@ -11,13 +12,17 @@ from peewee import (
     ModelSelect,
     TextField,
 )
-from playhouse.db_url import connect
+from peewee_async import Manager, PostgresqlDatabase
+from playhouse.db_url import parse
 from pydantic import BaseModel as PydanticModel
 from pydantic.utils import GetterDict
 
 from config import settings
 
-db = connect(settings.PEEWEE_DATABASE_URL)
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+db = PostgresqlDatabase(**parse(settings.PEEWEE_POSTGRES_URL))
+objects = Manager(db)
 
 
 class PeeweeGetterDict(GetterDict):

@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import platform
 from decimal import Decimal
 from typing import Any
 
@@ -19,7 +20,9 @@ from pydantic.utils import GetterDict
 
 from config import settings
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+# Adjust event loop if running on Windows machine
+if platform.system() == "Windows":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 db = PostgresqlDatabase(**parse(settings.PEEWEE_POSTGRES_URL))
 objects = Manager(db)

@@ -71,7 +71,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     for pydantic_error in exc.errors():
         loc, msg = pydantic_error["loc"], pydantic_error["msg"]
         filtered_loc = loc[1:] if loc[0] in ("body", "query", "path") else loc
-        field_string = ".".join(filtered_loc)
+        field_string = ".".join(str(fl) for fl in filtered_loc)
         reformatted_message[field_string].append(msg)
 
     # Format all validation exceptions to match the task description format

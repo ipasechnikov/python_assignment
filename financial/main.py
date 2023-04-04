@@ -3,28 +3,35 @@
 # Dirty hack to make parent modules importable
 # There is better solution to this problem by rearranging models, but I try to
 # keep directory structure as close to the task description as possible
-import math
 import sys
 sys.path.append('../python_assignment')
 # isort: on
 
 import datetime
+import math
+from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, NonNegativeInt, PositiveInt
 
 from config import settings
 from model import FinancialData, FinancialDataModel
 
+DEFAULT_LIMIT = 5
+DEFAULT_PAGE = 1
+
 app = FastAPI()
 
 
 class FinancialDataPagination(BaseModel):
-    count: NonNegativeInt
-    page: PositiveInt
-    limit: NonNegativeInt
-    pages: PositiveInt
+    count: NonNegativeInt = 0
+    page: PositiveInt = DEFAULT_PAGE
+    limit: NonNegativeInt = DEFAULT_LIMIT
+    pages: PositiveInt = 1
 
 
 class FinancialDataInfo(BaseModel):
@@ -32,9 +39,24 @@ class FinancialDataInfo(BaseModel):
 
 
 class FinancialDataResponse(BaseModel):
-    data: list[FinancialDataModel]
-    pagination: FinancialDataPagination
-    info: FinancialDataInfo
+    data: list[FinancialDataModel] = []
+    pagination: FinancialDataPagination = FinancialDataPagination()
+    info: FinancialDataInfo = FinancialDataInfo()
+
+
+# Make FastAPI validation exception format match the task description format
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder(
+            FinancialDataResponse(
+                info=FinancialDataInfo(
+                    error=str(exc)
+                )
+            ).dict()
+        )
+    )
 
 
 @app.get("/financial_data/")
@@ -42,10 +64,11 @@ async def financial_data(
         start_date: datetime.date | None = None,
         end_date: datetime.date | None = None,
         symbol: str | None = None,
-        limit: int = 5,
-        page: int = 1
+        limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+        page: Annotated[int, Query(ge=1)] = DEFAULT_PAGE
 ) -> FinancialDataResponse:
     try:
+        # Dynamically build WHERE clause
         conditions = []
 
         if start_date:
@@ -77,18 +100,10 @@ async def financial_data(
         # Build response structure
         return FinancialDataResponse(
             data=data_page,
-            pagination=pagination,
-            info=FinancialDataInfo()
+            pagination=pagination
         )
     except Exception as e:
         return FinancialDataResponse(
-            data=[],
-            pagination=FinancialDataPagination(
-                count=0,
-                page=1,
-                limit=limit,
-                pages=1
-            ),
             info=FinancialDataInfo(
                 error=str(e)
             )

@@ -3,6 +3,7 @@
 # Dirty hack to make parent modules importable
 # There is better solution to this problem by rearranging models, but I try to
 # keep directory structure as close to the task description as possible
+import math
 import sys
 sys.path.append('../python_assignment')
 # isort: on
@@ -14,7 +15,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, NonNegativeInt, PositiveInt
 
 from config import settings
-from model import FinancialDataModel
+from model import FinancialData, FinancialDataModel
 
 app = FastAPI()
 
@@ -44,7 +45,54 @@ async def financial_data(
         limit: int = 5,
         page: int = 1
 ) -> FinancialDataResponse:
-    raise NotImplementedError
+    try:
+        conditions = []
+
+        if start_date:
+            conditions.append(FinancialData.date >= start_date)
+
+        if end_date:
+            conditions.append(FinancialData.date <= end_date)
+
+        if symbol:
+            conditions.append(FinancialData.symbol == symbol)
+
+        query = FinancialData.select()
+        if conditions:
+            query = query.where(*conditions)
+
+        # Get a single page of financial data from the database
+        data_page = [FinancialDataModel.from_orm(fd) for fd in query.paginate(page, limit)]
+
+        # Build pagination structure
+        count = query.count()
+        pages = math.ceil(count / limit) or 1
+        pagination = FinancialDataPagination(
+            count=count,
+            page=page,
+            limit=limit,
+            pages=pages
+        )
+
+        # Build response structure
+        return FinancialDataResponse(
+            data=data_page,
+            pagination=pagination,
+            info=FinancialDataInfo()
+        )
+    except Exception as e:
+        return FinancialDataResponse(
+            data=[],
+            pagination=FinancialDataPagination(
+                count=0,
+                page=1,
+                limit=limit,
+                pages=1
+            ),
+            info=FinancialDataInfo(
+                error=str(e)
+            )
+        )
 
 
 if __name__ == "__main__":

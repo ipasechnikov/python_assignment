@@ -9,6 +9,7 @@ This is a small service that you can utilize to get latest financial data and ru
   - [Getting Started](#getting-started)
     - [Local Setup (Development)](#local-setup-development)
     - [Docker Setup (Production)](#docker-setup-production)
+    - [How to get the latest data from AlphaVantage](#how-to-get-the-latest-data-from-alphavantage)
   - [Built With](#built-with)
 
 ## Getting Started
@@ -21,7 +22,7 @@ And the second one is running a service as a Docker container, which should be y
 1. Get yourself a local version of PostgreSQL database. You can install it from official website or run it in a Docker. Whatever suits you the most.
    I prefer running it in a Docker. Use the following command to run a basic PostgreSQL container.
 
-   ```shell
+   ```commandline
    docker run --name some-postgres -e POSTGRES_PASSWORD=postgres -d postgres
    ```
 
@@ -46,6 +47,20 @@ And the second one is running a service as a Docker container, which should be y
 4. Run `docker-compose up` to start both PostgreSQL and API service
 5. Test it by navigating to `http://localhost:5000/financial_data/` in your browser 
 6. Or you can use FastAPI automatic interactive documentation available at `http://localhost:5000/docs`
+
+### How to get the latest data from AlphaVantage
+
+If you are using Poetry, then you should run the following command from the project root directory
+
+```commandline
+poetry run python get_raw_data.py
+```
+
+If you are using Docker, then you should jump into the container and run the following command from the project root directory 
+
+```commandline
+python get_raw_data.py
+```
 
 ## Built With
 

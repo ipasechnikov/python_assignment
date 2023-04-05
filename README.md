@@ -11,6 +11,16 @@ This is a small service that you can utilize to get latest financial data and ru
     - [Docker Setup (Production)](#docker-setup-production)
     - [How to get the latest data from AlphaVantage](#how-to-get-the-latest-data-from-alphavantage)
   - [Built With](#built-with)
+    - [Poetry](#poetry)
+    - [pyenv](#pyenv)
+    - [mypy](#mypy)
+    - [isort](#isort)
+    - [peewee](#peewee)
+    - [peewee-async](#peewee-async)
+    - [FastAPI](#fastapi)
+    - [Pydantic](#pydantic)
+    - [Requests](#requests)
+    - [PostgreSQL](#postgresql)
 
 ## Getting Started
 
@@ -64,13 +74,43 @@ python get_raw_data.py
 
 ## Built With
 
-- [Poetry](https://python-poetry.org/)
-- [pyenv](https://github.com/pyenv/pyenv)
-- [mypy](https://mypy-lang.org/)
-- [isort](https://pycqa.github.io/isort/)
-- [peewee](https://docs.peewee-orm.com/en/latest/)
-- [peewee-async](https://peewee-async.readthedocs.io/en/latest/)
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [Pydantic](https://docs.pydantic.dev/)
-- [Requests](https://requests.readthedocs.io/en/latest/)
-- [PostgreSQL](https://www.postgresql.org/)
+### [Poetry](https://python-poetry.org/)
+
+Provides a nice way to manage Python dependencies and virtual environments.
+
+### [pyenv](https://github.com/pyenv/pyenv)
+
+Allows to have multiple Python versions on a single machine and provides a quick switch between them.
+
+### [mypy](https://mypy-lang.org/)
+
+Static type checked that warns about code issues during development time. A must have tool if you care about your code quality.
+
+### [isort](https://pycqa.github.io/isort/)
+
+Keeps imports neat and tidy. Not as important as mypy, but still a nice tool to have.
+
+### [peewee](https://docs.peewee-orm.com/en/latest/)
+
+A simple to use Python ORM. One of my favorite ORMs because of its simplicity.
+
+### [peewee-async](https://peewee-async.readthedocs.io/en/latest/)
+
+Async extensions for peewee ORM. It's used here because of async nature of FastAPI. We don't want to block main thread with classical peewee.
+
+### [FastAPI](https://fastapi.tiangolo.com/)
+
+A well-known framework for building APIs using Python. It has a lot of builtin tools and automatically generated interactive documentation for your API.
+
+### [Pydantic](https://docs.pydantic.dev/)
+
+Automatic data parsing and validation tool. I use it for reading settings and creating response objects from ORM models.
+
+### [Requests](https://requests.readthedocs.io/en/latest/)
+
+A simple library to send HTTP requests.
+In this project it is used to get financial data from AlphaVantage and store it in the database.
+
+### [PostgreSQL](https://www.postgresql.org/)
+
+A classical relational database. There is no actual reason why I decided to use it. Can be replaced with something else like MySQL with a few code adjustments.
